@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "brewszilla-89db0",
+  "private_key_id": "0d6fe041b4bbf1a1893bb529a804738e4cae8540",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDDYU/CgBZvE1fE\nwQIUapXur6GrCpw+vdfMfHUcV24/zH63buiXc5QFKq4D0LJQRfuJOL/AsoMN9aHJ\nkbLpUG6YGttiBrnerDBRl/WSxpS/hPwnmueIPMy+g9q70BaxhhN6saI0XVCwhUwU\nHIkyigonCiajrZCliz5ctfzzcsk4yhFk73gc3A69Ip6VrbH4B9pccbWJIfk4NKtq\np+fUuW1ryvtqfOqDbUypbVg1usWRbXxK44dPX3hhy6CBJ/S0FuZmpYbLQEvnft/x\nXbjv8sI8neGILCwg9u2sGcknohWXt5g+VPHPSfRXlSsWZh8QrxIKMTDnmVsdJIi1\nFoGXf4SnAgMBAAECggEAB4zInL7/Xu5z6038CxbtUUpnKGliDUifwK6kheJZB80a\nrnLyOPwF4cc67znO0ixKIozXWBZt2wm9ZUEklUB+7ZDIHnsdDp4/xb9mBXR4BgiZ\nB9zECq8yyD/nIW/SmKySLyETIAvlFNUp0fMiWBoed1C8moGX/9WoJMQBkNTEMtYG\nxTnAoExLnLxyH6P1CasK+jS/SX4O6LlGF1OdkNzpGGzWhPWsDcwRoybC2vxv38og\nRcWbEcOMhmaFfv0oSYGh7vXxt4O9R8UGfBzJB5GB+GspbrycyJql0g0+8fyYRV9e\nMXuMqTcnNPHEZkzGTM/f1Y19cY6p9J/gG5Z/Ngl1SQKBgQD2f9P1yY3VbG+dZj3L\njRNPbKPKv0n2z0C/r0xPqVkYzxUmNRKNutbaEbwEcSfP2wmqqEBagEymHcsMS5OX\n7c38r1+yGnBBk/XggetU4D8ByeggaJ37SdabBa/maiZKwDHyjmcXqiiQaTo7Xx4J\n7iI3SgWOihCyUWVIKRRerdEQeQKBgQDK6RkZFwQJMfaYP9r7iDYh/ANXe2qx6sd2\nNZmsCPV8qKUoxs7kFxGGvKZb1Go8gA5lIUKAn0xpPhWDoVJTTnSjgJkBrZUT09Uw\n2jd+daS8kFCVHFDuQN55F9NEnktljqAGI2UrZC0fyhFphITTN9yYsstZrgmxtnxP\nTyThNB02HwKBgG0/njuTBu+OTbGe/MhYUDSlW7qiKS/gDzxlfxbXYYujTCZQ41Y5\ndrvTnFcDp7dxxskCJPN3ZYFCNxnN7S4q0V6qg2k2WoZWA2Vrb1eAw6wRRnYGp+4V\nfa3bSWh/p1T99aUhBAPzAGNwn8Rsla2lAzkp72iLPHcrqA3hVwvXUY9RAoGARrpR\noUlAguQDjLZVYm/sTpRFpezDGBk6RZ4RXsIQr88pIrmJzD+uQETpyACWt1f7rIyX\nXbYpMFYPsb49sAQc7BEbRFZ5LFweZ9Tomw/uyDuVmyQvoZzC73q6jaSPq2q3pOwZ\ni7JzeC07PIiQs/84yZEpCK19e5CcbBiuRkGgHQkCgYB8HrwCyYF0EZuPxrontSEC\n8bljzniRQwD9Mm/PUysD0ELa6eL/kQKy75kdY7hTnVSjlUveq8UE/6Oj18v6nGoM\nvKCKfWavdrLkiWWicSduo6UhLwJF4Idx7bNSy28qnbVTOTqaj2cb+kogay3Q/l/i\nwz7Prqh1H9y01WSQdQkv9A==\n-----END PRIVATE KEY-----\n",
+  "client_email": "bz-google-service-account@brewszilla-89db0.iam.gserviceaccount.com",
+  "client_id": "115390859452808995152",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bz-google-service-account%40brewszilla-89db0.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
