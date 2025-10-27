@@ -5,19 +5,23 @@ import re
 import json
 from flask import Flask, request, jsonify
 from google.cloud import vision
-from PIL import Image
-import io
 
 app = Flask(__name__)
 
-# For Railway deployment, credentials will be set via environment variable
+# For Render deployment - handle credentials from environment variable
 if 'GOOGLE_APPLICATION_CREDENTIALS_JSON' in os.environ:
-    # Create temporary credentials file from environment variable
-    import json
-    creds_json = json.loads(os.environ['GOOGLE_APPLICATION_CREDENTIALS_JSON'])
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-        json.dump(creds_json, f)
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = f.name
+    try:
+        creds_json = json.loads(os.environ['GOOGLE_APPLICATION_CREDENTIALS_JSON'])
+        # Create temporary credentials file
+        creds_path = '/tmp/google-credentials.json'
+        with open(creds_path, 'w') as f:
+            json.dump(creds_json, f)
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = creds_path
+        print("✅ Google credentials configured successfully")
+    except Exception as e:
+        print(f"❌ Error setting up credentials: {e}")
+else:
+    print("⚠️ GOOGLE_APPLICATION_CREDENTIALS_JSON not found in environment")
 
 client = vision.ImageAnnotatorClient()
 
@@ -63,50 +67,66 @@ def categorize_item(name):
 def extract_text_from_image(image_data):
     """Extract text from base64 image data"""
     try:
+        print(f"📥 Received image data length: {len(image_data)}")
+        
         # Remove data URI prefix if present
         if ',' in image_data:
-            image_data = image_data.split(',', 1)[1]
+            parts = image_data.split(',', 1)
+            print(f"🔍 Data URI prefix: {parts[0][:50]}...")
+            image_data = parts[1]
         
         # Clean the base64 string - remove whitespace and newlines
+        original_length = len(image_data)
         image_data = image_data.strip().replace('\n', '').replace('\r', '').replace(' ', '')
+        print(f"🧹 Cleaned base64 string: {original_length} -> {len(image_data)} chars")
         
         # Add padding if necessary
         missing_padding = len(image_data) % 4
         if missing_padding:
             image_data += '=' * (4 - missing_padding)
+            print(f"➕ Added {4 - missing_padding} padding characters")
         
         # Decode base64
         try:
             image_bytes = base64.b64decode(image_data, validate=True)
+            print(f"✅ Successfully decoded base64 to {len(image_bytes)} bytes")
         except Exception as decode_error:
+            print(f"❌ Base64 decode failed: {str(decode_error)}")
             raise Exception(f'Base64 decode error: {str(decode_error)}')
         
         # Validate image size
         if len(image_bytes) < 100:
-            raise Exception('Image data too small - likely corrupted')
+            raise Exception(f'Image data too small ({len(image_bytes)} bytes) - likely corrupted')
         
-        # Validate and normalize image using PIL
-        try:
-            img = Image.open(io.BytesIO(image_bytes))
-            
-            # Convert to RGB if needed
-            if img.mode not in ('RGB', 'L'):
-                img = img.convert('RGB')
-            
-            # Save back to bytes
-            img_byte_arr = io.BytesIO()
-            img.save(img_byte_arr, format='JPEG', quality=95)
-            image_bytes = img_byte_arr.getvalue()
-            
-        except Exception as img_error:
-            raise Exception(f'Invalid image format: {str(img_error)}')
+        # Check if it looks like a valid image (basic magic number check)
+        magic_numbers = {
+            b'\xFF\xD8\xFF': 'JPEG',
+            b'\x89\x50\x4E\x47': 'PNG',
+            b'\x47\x49\x46': 'GIF',
+            b'\x42\x4D': 'BMP'
+        }
         
-        # Create Vision API image object
+        detected_format = None
+        for magic, format_name in magic_numbers.items():
+            if image_bytes.startswith(magic):
+                detected_format = format_name
+                break
+        
+        if detected_format:
+            print(f"🖼️ Detected image format: {detected_format}")
+        else:
+            print(f"⚠️ Unknown image format. First bytes: {image_bytes[:10].hex()}")
+        
+        # Create Vision API image object directly
+        print("🔄 Sending to Google Vision API...")
         image = vision.Image(content=image_bytes)
         response = client.text_detection(image=image)
         
         if response.error.message:
+            print(f"❌ Vision API error: {response.error.message}")
             raise Exception(f'Vision API error: {response.error.message}')
+        
+        print(f"✅ Vision API returned {len(response.text_annotations)} text annotations")
         
         # Extract text with coordinates
         text_data = []
@@ -138,9 +158,11 @@ def extract_text_from_image(image_data):
             line_text = ' '.join([i['text'] for i in row])
             lines.append(line_text)
 
+        print(f"📝 Extracted {len(lines)} text lines")
         return lines
         
     except Exception as e:
+        print(f"❌ Error in extract_text_from_image: {str(e)}")
         raise Exception(f'Error processing image: {str(e)}')
 
 def analyze_menu_structure(lines):
@@ -302,6 +324,7 @@ def extract_menu():
         })
         
     except Exception as e:
+        print(f"❌ Error in /extract-menu: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/health', methods=['GET'])
