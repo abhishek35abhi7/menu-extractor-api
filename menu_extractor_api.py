@@ -5,6 +5,8 @@ import re
 import json
 from flask import Flask, request, jsonify
 from google.cloud import vision
+from PIL import Image
+import io
 
 app = Flask(__name__)
 
@@ -61,11 +63,43 @@ def categorize_item(name):
 def extract_text_from_image(image_data):
     """Extract text from base64 image data"""
     try:
-        # Decode base64
+        # Remove data URI prefix if present
         if ',' in image_data:
-            image_data = image_data.split(',')[1]
+            image_data = image_data.split(',', 1)[1]
         
-        image_bytes = base64.b64decode(image_data)
+        # Clean the base64 string - remove whitespace and newlines
+        image_data = image_data.strip().replace('\n', '').replace('\r', '').replace(' ', '')
+        
+        # Add padding if necessary
+        missing_padding = len(image_data) % 4
+        if missing_padding:
+            image_data += '=' * (4 - missing_padding)
+        
+        # Decode base64
+        try:
+            image_bytes = base64.b64decode(image_data, validate=True)
+        except Exception as decode_error:
+            raise Exception(f'Base64 decode error: {str(decode_error)}')
+        
+        # Validate image size
+        if len(image_bytes) < 100:
+            raise Exception('Image data too small - likely corrupted')
+        
+        # Validate and normalize image using PIL
+        try:
+            img = Image.open(io.BytesIO(image_bytes))
+            
+            # Convert to RGB if needed
+            if img.mode not in ('RGB', 'L'):
+                img = img.convert('RGB')
+            
+            # Save back to bytes
+            img_byte_arr = io.BytesIO()
+            img.save(img_byte_arr, format='JPEG', quality=95)
+            image_bytes = img_byte_arr.getvalue()
+            
+        except Exception as img_error:
+            raise Exception(f'Invalid image format: {str(img_error)}')
         
         # Create Vision API image object
         image = vision.Image(content=image_bytes)
