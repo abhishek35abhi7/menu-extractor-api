@@ -40,28 +40,152 @@ def extract_numbers(text):
     return numbers
 
 def categorize_item(name):
-    """Categorize item as Food or Drink based on name"""
-    name_lower = name.lower()
+    """Enhanced categorization using comprehensive drink keywords"""
+    name_lower = name.lower().strip()
     
-    # Drink keywords
+    # Remove common prefixes/suffixes that might interfere with matching
+    name_clean = re.sub(r'^(fresh|cold|hot|iced|chilled|warm|special|premium|house)\s+', '', name_lower)
+    name_clean = re.sub(r'\s+(fresh|cold|hot|iced|chilled|warm|special|premium|house)$', '', name_clean)
+    
+    # Comprehensive drink keywords list
     drink_keywords = [
-        'beer', 'lager', 'ale', 'stout', 'pilsner', 'hefeweizen', 'wheat', 'ipa',
-        'wine', 'sangria', 'champagne', 'prosecco',
-        'whiskey', 'whisky', 'bourbon', 'scotch', 'rum', 'vodka', 'gin', 'tequila',
-        'cognac', 'brandy', 'liqueur', 'baileys', 'kahlua', 'jagermeister',
-        'cocktail', 'martini', 'margarita', 'mojito', 'daiquiri', 'negroni',
-        'sour', 'punch', 'sangria', 'bellini', 'cosmopolitan',
-        'water', 'soda', 'cola', 'coke', 'pepsi', 'sprite', 'juice', 'coffee', 'tea',
-        'milk', 'shake', 'smoothie', 'lemonade', 'iced tea', 'hot chocolate',
-        'energy drink', 'sports drink', 'tonic', 'ginger ale', 'club soda',
-        'fresh lime', 'cold pressed', 'aerated', 'packaged water', 'perrier',
-        'red bull', 'diet coke', 'fresh lime soda', 'fresh lime water'
+        # --- Alcoholic: Beer & Ales ---
+        'beer', 'lager', 'ale', 'stout', 'pilsner', 'porter', 'hefeweizen', 'wheat',
+        'ipa', 'double ipa', 'session ipa', 'craft beer', 'draught beer', 'draft beer',
+        'amber ale', 'brown ale', 'pale ale', 'blonde ale', 'saison', 'kolsch',
+        # --- Alcoholic: Wines & Sparkling ---
+        'wine', 'red wine', 'white wine', 'rose', 'dessert wine', 'fortified wine',
+        'sangria', 'champagne', 'prosecco', 'cava', 'sparkling wine',
+        # --- Alcoholic: Spirits ---
+        'whiskey', 'whisky', 'bourbon', 'scotch', 'rye whiskey', 'irish whiskey',
+        'rum', 'vodka', 'gin', 'tequila', 'mezcal', 'cognac', 'brandy', 'armagnac',
+        'absinthe', 'soju', 'sake', 'grappa', 'baijiu',
+        # --- Alcoholic: Liqueurs & Creams ---
+        'liqueur', 'amaretto', 'baileys', 'kahlua', 'jagermeister', 'cointreau',
+        'grand marnier', 'triple sec', 'midori', 'chambord', 'drambuie', 'sambuca',
+        'limoncello', 'frangelico', 'curacao', 'campari', 'aperol', 'vermouth',
+        # --- Alcoholic: Cocktails ---
+        'cocktail', 'martini', 'margarita', 'mojito', 'daiquiri', 'negroni', 'cosmopolitan',
+        'old fashioned', 'manhattan', 'bloody mary', 'whiskey sour', 'mai tai', 'pina colada',
+        'tequila sunrise', 'gin tonic', 'vodka tonic', 'rum punch', 'bellini', 'spritz',
+        'mint julep', 'paloma', 'espresso martini', 'long island iced tea', 'blue lagoon',
+        # --- Non-Alcoholic: Water & Sodas ---
+        'water', 'sparkling water', 'mineral water', 'packaged water', 'perrier', 'aerated',
+        'soda', 'club soda', 'tonic', 'ginger ale', 'cola', 'coke', 'pepsi', 'sprite',
+        'mountain dew', 'fanta', '7up', 'diet coke', 'fresh lime', 'fresh lime soda',
+        'fresh lime water', 'cold pressed', 'carbonated drink',
+        # --- Non-Alcoholic: Juices & Smoothies ---
+        'juice', 'orange juice', 'apple juice', 'mango juice', 'pineapple juice',
+        'pomegranate juice', 'grape juice', 'watermelon juice', 'cranberry juice',
+        'lime juice', 'lemonade', 'fresh juice', 'mocktail', 'fruit punch',
+        'smoothie', 'milkshake', 'protein shake', 'cold pressed juice', 'lassi',
+        'buttermilk', 'aam panna', 'jaljeera', 'kokum sherbet', 'rose milk', 'falooda',
+        # --- Café: Coffee & Espresso Variants ---
+        'coffee', 'black coffee', 'americano', 'espresso', 'double espresso',
+        'ristretto', 'lungo', 'cappuccino', 'latte', 'flat white', 'macchiato',
+        'café mocha', 'iced coffee', 'cold brew', 'nitro cold brew', 'affogato',
+        'frappuccino', 'turkish coffee', 'filter coffee', 'south indian filter coffee',
+        'madras coffee', 'instant coffee', 'decaf', 'espresso shot',
+        # --- Café: Hot Chocolate & Specialty Drinks ---
+        'hot chocolate', 'chocolate milk', 'white chocolate mocha', 'caramel macchiato',
+        'hazelnut latte', 'vanilla latte', 'irish coffee', 'spiced coffee', 'chai latte',
+        # --- Tea: Hot, Iced & Infused ---
+        'tea', 'black tea', 'green tea', 'white tea', 'oolong tea', 'herbal tea',
+        'masala chai', 'ginger tea', 'lemon tea', 'peppermint tea', 'hibiscus tea',
+        'earl grey', 'english breakfast', 'chamomile tea', 'jasmine tea',
+        'iced tea', 'lemon iced tea', 'peach iced tea', 'mint tea', 'matcha', 'matcha latte',
+        'bubble tea', 'boba', 'thai tea', 'milk tea', 'taro milk tea',
+        # --- Energy & Sports ---
+        'energy drink', 'red bull', 'monster', 'gatorade', 'powerade', 'sports drink',
+        'isotonic drink', 'electrolyte water', 'sting',
+        # --- Indian Traditional Beverages ---
+        'sweet lassi', 'salted lassi', 'mango lassi', 'chaas', 'thandai', 'badam milk',
+        'kesar milk', 'haldi doodh', 'turmeric milk', 'rabri', 'milk sharbat',
+        'nannari sherbet', 'malai shake', 'dry fruit shake', 'sattu drink',
+        'bel sherbet', 'solkadhi', 'neera', 'toddy', 'tender coconut water',
+        'nimbu pani', 'piyush', 'chaach', 'kanji', 'ragi malt', 'ragi ambli',
+        'sattu sharbat', 'amla juice',
+        # --- Indian Tea & Infusions ---
+        'chai', 'adrak chai', 'elaichi chai', 'cardamom tea', 'tulsi tea',
+        'green chai', 'cutting chai', 'kulhad chai', 'irani chai', 'sulaimani chai',
+        'kahwa', 'nilgiri tea', 'assam tea', 'darjeeling tea', 'kesar chai',
+        'rose chai', 'kashmiri chai',
+        # --- Indian Regional Drinks ---
+        'kulukki sarbath', 'nannari sarbath', 'paneer soda', 'rose soda', 'jeera soda',
+        'masala soda', 'banta', 'goli soda', 'lemon soda', 'imli soda', 'falsa sherbet',
+        'chandan sharbat', 'jamun juice', 'mosambi juice', 'kala khatta',
+        'tamarind drink', 'panakam', 'bel juice', 'barley water',
+        # --- Indian Fusion & Café Style ---
+        'kulfi shake', 'mango shake', 'strawberry shake', 'oreo shake', 'kitkat shake',
+        'banana shake', 'coffee shake', 'butterscotch shake', 'rose frappe',
+        'thick shake', 'detox juice', 'matcha chai', 'turmeric latte',
+        # --- Packaged & Modern Beverages ---
+        'bisleri', 'kinley', 'aquafina', 'himalayan water', 'appfizz', 'bovonto',
+        'thumbs up', 'coca cola', 'maaza', 'frooti', 'slice', 'real juice',
+        'paper boat', 'tropicana', 'mirinda', 'paperboat drink',
+        # --- Festival & Ritual ---
+        'bhang thandai', 'panchamrit', 'charanamrit', 'sandalwood milk',
+        'holi thandai', 'navratri drink', 'diwali sharbat'
     ]
     
+    # Create a set for faster lookups
+    drink_keywords_set = set(drink_keywords)
+    
+    # Food keywords that should never be drinks (to prevent false positives)
+    food_keywords = [
+        'soup', 'broth', 'curry', 'gravy', 'sauce', 'dal', 'rasam', 'sambar',
+        'bread', 'roti', 'naan', 'chapati', 'paratha', 'rice', 'biryani', 'pulao',
+        'salad', 'starter', 'appetizer', 'main course', 'dessert', 'sweet',
+        'ice cream', 'kulfi', 'gulab jamun', 'rasgulla', 'kheer', 'halwa',
+        'pizza', 'burger', 'sandwich', 'wrap', 'roll', 'pasta', 'noodles',
+        'chicken', 'mutton', 'fish', 'paneer', 'egg', 'vegetable', 'sabzi'
+    ]
+    
+    # Check for explicit food keywords first (prevents false drink classification)
+    for keyword in food_keywords:
+        if keyword in name_clean:
+            return "Food"
+    
+    # Check for drink keywords using exact and partial matches
+    # 1. Exact match check
+    if name_clean in drink_keywords_set:
+        return "Drink"
+    
+    # 2. Partial match check (keyword appears in the name)
     for keyword in drink_keywords:
-        if keyword in name_lower:
+        if keyword in name_clean:
             return "Drink"
     
+    # 3. Pattern-based detection for drinks
+    drink_patterns = [
+        r'\b\d+\s*ml\b',           # Volume indicators: 250ml, 500ml
+        r'\b\d+\s*cl\b',           # Centiliters: 33cl
+        r'\b\d+\s*oz\b',           # Ounces: 12oz
+        r'\bbottle\b',             # Bottle indicators
+        r'\bcan\b',                # Can indicators  
+        r'\bglass\b(?!\s+noodles)', # Glass (but not glass noodles)
+        r'\bpeg\b',                # Alcohol peg
+        r'\bshot\b(?!\s+glass)',   # Shot (but not shot glass as food item)
+        r'\bmug\b',                # Mug (coffee/tea context)
+        r'\bcup\b(?!\s+noodles)',  # Cup (but not cup noodles)
+    ]
+    
+    for pattern in drink_patterns:
+        if re.search(pattern, name_clean, re.IGNORECASE):
+            return "Drink"
+    
+    # 4. Check for common drink suffixes/prefixes that weren't caught
+    drink_indicators = [
+        'drink', 'beverage', 'liquid', 'refresher', 'cooler', 'slush',
+        'shake', 'smoothie', 'juice', 'water', 'soda', 'tea', 'coffee',
+        'milk', 'lassi', 'sherbet', 'sharbat', 'punch'
+    ]
+    
+    for indicator in drink_indicators:
+        if indicator in name_clean:
+            return "Drink"
+    
+    # Default to Food for ambiguous cases
     return "Food"
 
 def extract_text_from_image(image_data):
