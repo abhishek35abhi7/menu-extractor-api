@@ -138,7 +138,7 @@ def categorize_item(name):
         'salad', 'starter', 'appetizer', 'main course', 'dessert', 'sweet',
         'ice cream', 'kulfi', 'gulab jamun', 'rasgulla', 'kheer', 'halwa',
         'pizza', 'burger', 'sandwich', 'wrap', 'roll', 'pasta', 'noodles',
-        'chicken', 'mutton', 'fish', 'paneer', 'egg', 'vegetable', 'sabzi'
+        'chicken', 'mutton', 'fish', 'paneer', 'egg', 'vegetable', 'sabzi', 'momos', 'steak', 'toast'
     ]
     
     # Check for explicit food keywords first (prevents false drink classification)
